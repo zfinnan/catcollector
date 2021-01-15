@@ -54,7 +54,7 @@ def cattoys_index(request):
     cattoys = CatToy.objects.all()
     return render(request, 'cattoys/index.html', { 'cattoys': cattoys })
 
-def cattoys_show(request):
+def cattoys_show(request, cattoy_id):
     cattoy = CatToy.objects.get(id=cattoy_id)
     return render(request, 'cattoys/show.html', { 'cattoy': cattoy })
 
@@ -65,7 +65,7 @@ class CatToyCreate(CreateView):
 
 class CatToyUpdate(UpdateView):
     model = CatToy
-    field = ['name', 'color']
+    fields = ['name', 'color']
     success_url = '/cattoys'
 
 class CatToyDelete(DeleteView):
