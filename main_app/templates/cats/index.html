@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content%}
+    {% if user.is_authenticated %}
     <a href="/cats/create">Add a New Cat</a>
+    {% endif %}
     <hr />
     {% for cat in cats %}
         <a href="/cats/{{ cat.id }}">

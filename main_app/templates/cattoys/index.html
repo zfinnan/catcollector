@@ -3,7 +3,9 @@
 
 {% block content%}
         <h1>Cat Toy List</h1>
+    {% if user.is_authenticated %}
     <a href="/cattoys/create">Add a New Cat Toy</a>
+    {% endif %}
     <hr />
     {% for cattoy in cattoys %}
         <div>

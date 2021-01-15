@@ -11,7 +11,9 @@
             <p>No cat has this toy...</p>
         {% endfor %}
         
-        <a class="btn btn-primary" href="{% url 'cattoys_update' cattoy.id %}">Edit</a> |
-        <a class="btn btn-danger" href="{% url 'cattoys_delete' cattoy.id %}">Delete</a>
+        {% if user.is_authenticated %}
+            <a class="btn btn-primary" href="{% url 'cattoys_update' cattoy.id %}">Edit</a> |
+            <a class="btn btn-danger" href="{% url 'cattoys_delete' cattoy.id %}">Delete</a>
+        {% endif %}
     </div>
 {% endblock %}
