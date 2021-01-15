@@ -3,6 +3,8 @@ from .models import Cat, CatToy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 def index(request):
@@ -11,6 +13,34 @@ def index(request):
 def about(request):
     return render(request, 'about.html')
 
+######## USER ########
+def profile(request, username):
+    user = User.objects.get(username=username)
+    cats = Cat.objects.filter(user=user)
+    return render(request, 'profile.html', { 'username': username, 'cats': cats })
+
+def login_view(request):
+  # if post, then authenticate (the user will be submitting a username and password)
+  if request.method == 'POST':
+    form = AuthenticationForm(request, request.POST)
+    if form.is_valid():
+      u = form.cleaned_data['username']
+      p = form.cleaned_data.get('password')
+      user = authenticate(username=u, password=p)
+      if user is not None:
+        if user.is_active:
+          login(request, user)
+          return HttpResponseRedirect('/user/' + u)
+        else:
+          print(f"The account for {u} has been disabled.")
+      else:
+        print('The username and/or password is incorrect.')
+  else: # get request that sent up empty form
+    form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+
+
+######## CATS ########
 def cats_index(request):
     cats = Cat.objects.all()
     return render(request, 'cats/index.html', {'cats': cats})
@@ -21,18 +51,18 @@ def cats_show(request, cat_id):
 
 class CatCreate(CreateView):
     model = Cat
-    fields = '__all__'
+    fields = ['name', 'breed', 'description', 'age', 'cattoys']
     success_url = '/cats'
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.save()
-        return HttpResponseRedirect('/cats')
+        return HttpResponseRedirect('/cats/' + str(self.object.pk))
 
 class CatUpdate(UpdateView):
     model = Cat
-    fields = ['name', 'breed', 'description', 'age']
+    fields = ['name', 'breed', 'description', 'age', 'cattoys']
     
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -42,12 +72,6 @@ class CatUpdate(UpdateView):
 class CatDelete(DeleteView):
     model = Cat
     success_url = '/cats'
-
-######## USER ########
-def profile(request, username):
-    user = User.objects.get(username=username)
-    cats = Cat.objects.filter(user=user)
-    return render(request, 'profile.html', { 'username': username, 'cats': cats })
 
 ######## CatToy ########
 def cattoys_index(request):
